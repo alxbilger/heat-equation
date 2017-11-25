@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Heat equation</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <!-- custom CSS -->
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <!-- Chartjs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
+    <!-- mathjax -->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+    </script>
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+    <!-- mathjs -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.16.5/math.min.js"></script>
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row" >
+            <div class="col-md-3 leftColumn" >
+                <h1>1D Heat equation</h1>
+
+                <div id="equation">
+                    $$\frac{\partial u}{\partial t} = \alpha \frac{\partial^2 u}{\partial x^2}$$
+                </div>
+
+                <hr>
+
+                <form>
+                    <a class="btn h2a" data-toggle="collapse" href="#numericsContent" aria-expanded="true" aria-controls="numericsContent">
+                    <h2>Numerics and material</h2>
+                    </a>
+
+                    <div id="numericsContent" class="collapse show">
+                        <div class="slidecontainer">
+                            <label for="gridSlider">Spatial discretization</label>
+                            <input type="range" min="3" max="200" value="20" class="slider" id="gridSlider" class="slider">
+                            <small id="gridSliderHelp" class="form-text text-muted">N = <span id="gridSliderValue"></span>, number of mesh points</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dt">Time step $\Delta t$</label>
+                            <input type="number" class="form-control" id="dt" value="0.001">
+                        </div>
+
+                        <div class="dropdown">
+                          <button class="btn btn-secondary dropdown-toggle btn-block" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Solver
+                          </button>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="#" id="solverBackward"><i class="fa fa-check" aria-hidden="true"></i>Backward Euler</a>
+                            <a class="dropdown-item" href="#" id="solverForward">Forward Euler</a>
+                          </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="alpha">Diffusion coefficient $\alpha$</label>
+                            <input type="number" class="form-control" id="alpha" value="1">
+                        </div>
+
+                        <div>
+                            Fourier number: <span id="fourierNumber"></span>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <a class="btn h2a" data-toggle="collapse" href="#initializationContent" aria-expanded="true" aria-controls="initializationContent">
+                    <h2>Initialization</h2>
+                    </a>
+
+                    <div id="initializationContent" class="collapse show">
+                        <div class="form-group">
+                            <label for="u_left_0">$u$(x=0, t=0)</label>
+                            <input type="number" class="form-control" id="u_left_0" aria-describedby="u_left_0_help" value="50">
+                            <small id="u_left_0_help" class="form-text text-muted">Initial value of $u$ on the left extremity</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="u_middle_0">$u$(x=0.5, t=0)</label>
+                            <input type="number" class="form-control" id="u_middle_0" aria-describedby="u_middle_0_help" value="10">
+                            <small id="u_middle_0_help" class="form-text text-muted">Initial value of $u$ on the middle</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="u_right_0">$u$(x=1, t=0)</label>
+                            <input type="number" class="form-control" id="u_right_0" aria-describedby="u_right_0_help" value="90">
+                            <small id="u_right_0_help" class="form-text text-muted">Initial value of $u$ on the right extremity</small>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <a class="btn h2a" data-toggle="collapse" href="#boundaryContent" aria-expanded="true" aria-controls="boundaryContent">
+                    <h2>Boundary conditions</h2>
+                    </a>
+
+                    <div id="boundaryContent" class="collapse show">
+                        <div class="form-group">
+                            <label for="u_left">$u$(x=0, t)</label>
+                            <input type="number" class="form-control" id="u_left" aria-describedby="u_left_help" value="100">
+                            <small id="u_left_help" class="form-text text-muted">Boundary condition on the left extremity</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="u_right">$u$(x=1, t)</label>
+                            <input type="number" class="form-control" id="u_right" aria-describedby="u_right_help" value="0">
+                            <small id="u_right_help" class="form-text text-muted">Boundary condition on the right extremity</small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-9">
+                <div class="chart-container">
+                    <div class="row">
+                        <div class="col">
+                            <button type="button" id="reinit_button" class="btn btn-secondary btn-lg"><i class="fa fa-repeat" aria-hidden="true"></i> Reinit</button>
+                            <button type="button" id="start_button" class="btn btn-primary btn-lg"><i class="fa fa-play" aria-hidden="true"></i> Start</button>
+                            <button type="button" id="step_button" class="btn btn-primary btn-lg"><i class="fa fa-step-forward" aria-hidden="true"></i> Step</button>
+                        </div>
+                        <div class="col-5" id="info" width="100%">
+                            <div class="row" width="100%">
+                                <div class="col-3">
+                                    <i class="fa fa-clock-o clock" aria-hidden="true"></i>
+                                </div>
+                                <div class="col" id="current_t_div">
+                                    <span id="current_t">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <canvas id="canvas" width="90%" height="900%"></canvas>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/heat.js"></script>
+
+
+</body>
